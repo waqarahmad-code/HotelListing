@@ -40,11 +40,10 @@ namespace HotelListing.Controllers
         }
         
         
-       // [Authorize]
+        [Authorize]
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Authorize]
         public async Task<IActionResult> GetHotel(int id)
         {
             var hotel = await _unitOfWork.Hotels.Get(q => q.Id == id, new List<string> { "Country" });
