@@ -10,8 +10,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace HotelListing.Services
 {
@@ -19,12 +18,12 @@ namespace HotelListing.Services
     {
 
         private readonly UserManager<ApiUser> _userManager;
-        private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
         private ApiUser _user;
 
 
        public AuthManager(UserManager<ApiUser> userManager,
-            Microsoft.Extensions.Configuration.IConfiguration configuration)
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration;
@@ -67,6 +66,7 @@ namespace HotelListing.Services
             var claims = new List<Claim>
              {
                  new Claim(ClaimTypes.Name, _user.UserName)
+                
              };
 
             var roles = await _userManager.GetRolesAsync(_user);
