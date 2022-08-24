@@ -39,7 +39,7 @@ namespace HotelListing.Migrations
                         column: x => x.CountryId,
                         principalTable: "Countries",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
