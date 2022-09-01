@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using HotelListing.Configurations;
 using HotelListing.Data;
 using HotelListing.IRepository;
@@ -38,13 +39,13 @@ namespace HotelListing
             options.UseSqlServer(Configuration.GetConnectionString("sqlconnection"))
             );
 
-            //services.AddMemoryCache();
+            services.AddMemoryCache();
 
-            //services.ConfigureRateLimiting();
-          //  services.AddHttpContextAccessor();
+            services.ConfigureRateLimiting();
+            services.AddHttpContextAccessor();
 
-           // services.ConfigureHttpCacheHeaders();
-
+            // services.ConfigureHttpCacheHeaders();
+            services.AddHttpCacheHeaders();
             services.AddAuthentication();
             services.ConfigureIdentity();
             services.ConfigureJWT(Configuration);
@@ -59,6 +60,7 @@ namespace HotelListing
                     .AllowAnyMethod());
             });
 
+            services.AddResponseCaching();
             services.AddAutoMapper(typeof(MapperInitilizer));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAuthManager, AuthManager>();
@@ -67,11 +69,15 @@ namespace HotelListing
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HotelListing", Version = "v1" });
             });
-            services.AddControllers().AddNewtonsoftJson(op =>
+            services.AddControllers(config =>
+            {
+                config.CacheProfiles.Add("120SecondDuration", new CacheProfile { Duration=120 });
+
+            }).AddNewtonsoftJson(op =>
             op.SerializerSettings.ReferenceLoopHandling=
             Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            
             );
+            services.ConfigureVersioning();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -84,11 +90,14 @@ namespace HotelListing
 
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HotelListing v1"));
-
+            app.ConfigureExceptionHandler();
             app.UseSerilogRequestLogging();
 
             app.UseCors("CorsPolicy");
-
+            
+            app.UseResponseCaching();
+            app.UseHttpCacheHeaders();
+            app.UseIpRateLimiting();
             app.UseRouting();
 
 
